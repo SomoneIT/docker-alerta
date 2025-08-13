@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM python:3.13-slim-bookworm
 
 ENV PYTHONUNBUFFERED=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
@@ -64,13 +64,15 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # hadolint ignore=DL3008
-#RUN curl -fsSL https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add -
-#RUN echo "deb https://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" | tee /etc/apt/sources.list.d/mongodb-org-4.2.list
-#RUN apt-get update
-#RUN apt-get install -y --no-install-recommends mongodb-org-shell
-#RUN apt-get -y clean
-#RUN apt-get -y autoremove
-#RUN rm -rf /var/lib/apt/lists/*
+# RUN curl -fsSL https://www.mongodb.org/static/pgp/server-4.2.asc | apt key add -
+RUN curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
+# RUN echo "deb https://repo.mongodb.org/apt/debian trixie/mongodb-org/4.2 main" | tee /etc/apt/sources.list.d/mongodb-org-4.2.list
+RUN echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] http://repo.mongodb.org/apt/debian bookworm/mongodb-org/8.0 main" | tee /etc/apt/sources.list.d/mongodb-org-8.0.list
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends mongodb-org-shell
+RUN apt-get -y clean
+RUN apt-get -y autoremove
+RUN rm -rf /var/lib/apt/lists/*
 
 COPY requirements*.txt /app/
 
