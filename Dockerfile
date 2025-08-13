@@ -1,6 +1,6 @@
 FROM python:3.13-slim
 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
 
@@ -8,7 +8,7 @@ ARG BUILD_DATE
 ARG RELEASE
 ARG VERSION
 
-ENV SERVER_VERSION=${RELEASE}
+ENV SERVER_VERSION=9.0.4
 ENV CLIENT_VERSION=8.5.3
 ENV WEBUI_VERSION=8.7.1
 
@@ -76,11 +76,11 @@ COPY requirements*.txt /app/
 
 # hadolint ignore=DL3013
 RUN pip install --no-cache-dir pip virtualenv jinja2
-RUN python3 -m venv /venv 
+RUN python3 -m venv /venv
 RUN /venv/bin/pip install --no-cache-dir --upgrade setuptools
 RUN /venv/bin/pip install --no-cache-dir --requirement /app/requirements.txt
 RUN /venv/bin/pip install --no-cache-dir --requirement /app/requirements-docker.txt
-ENV PATH $PATH:/venv/bin
+ENV PATH=$PATH:/venv/bin
 
 RUN /venv/bin/pip install alerta==${CLIENT_VERSION} alerta-server==${SERVER_VERSION}
 COPY install-plugins.sh /app/install-plugins.sh
@@ -91,9 +91,9 @@ ADD https://github.com/alerta/alerta-webui/releases/download/v${WEBUI_VERSION}/a
 RUN tar zxvf /tmp/webui.tar.gz -C /tmp && \
     mv /tmp/dist /web
 
-ENV ALERTA_SVR_CONF_FILE /app/alertad.conf
-ENV ALERTA_CONF_FILE /app/alerta.conf
-ENV ALERTA_WEB_CONF_FILE /web/config.json
+ENV ALERTA_SVR_CONF_FILE=/app/alertad.conf
+ENV ALERTA_CONF_FILE=/app/alerta.conf
+ENV ALERTA_WEB_CONF_FILE=/web/config.json
 
 COPY config/templates/app/ /app
 COPY config/templates/web/ /web
