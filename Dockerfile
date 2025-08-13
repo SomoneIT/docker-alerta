@@ -1,4 +1,4 @@
-FROM python:3.9-slim-buster
+FROM python:3.13-slim
 
 ENV PYTHONUNBUFFERED 1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
@@ -53,33 +53,33 @@ RUN apt-get update && \
     apt-get -y autoremove && \
     rm -rf /var/lib/apt/lists/*
 
-RUN curl -fsSL https://nginx.org/keys/nginx_signing.key | apt-key add - && \
-    echo "deb https://nginx.org/packages/debian/ buster nginx" | tee /etc/apt/sources.list.d/nginx.list && \
-    apt-get update && \
+# RUN curl -fsSL https://nginx.org/keys/nginx_signing.key | apt-key add - && \
+#     echo "deb https://nginx.org/packages/debian/ buster nginx" | tee /etc/apt/sources.list.d/nginx.list && \
+RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    nginx && \
+    nginx \
+    libxml2 libxml2-dev libxslt-dev && \
     apt-get -y clean && \
     apt-get -y autoremove && \
     rm -rf /var/lib/apt/lists/*
 
 # hadolint ignore=DL3008
-RUN curl -fsSL https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add - && \
-    echo "deb https://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" | tee /etc/apt/sources.list.d/mongodb-org-4.2.list && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-    mongodb-org-shell && \
-    apt-get -y clean && \
-    apt-get -y autoremove && \
-    rm -rf /var/lib/apt/lists/*
+#RUN curl -fsSL https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add -
+#RUN echo "deb https://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" | tee /etc/apt/sources.list.d/mongodb-org-4.2.list
+#RUN apt-get update
+#RUN apt-get install -y --no-install-recommends mongodb-org-shell
+#RUN apt-get -y clean
+#RUN apt-get -y autoremove
+#RUN rm -rf /var/lib/apt/lists/*
 
 COPY requirements*.txt /app/
 
 # hadolint ignore=DL3013
-RUN pip install --no-cache-dir pip virtualenv jinja2 && \
-    python3 -m venv /venv && \
-    /venv/bin/pip install --no-cache-dir --upgrade setuptools && \
-    /venv/bin/pip install --no-cache-dir --requirement /app/requirements.txt && \
-    /venv/bin/pip install --no-cache-dir --requirement /app/requirements-docker.txt
+RUN pip install --no-cache-dir pip virtualenv jinja2
+RUN python3 -m venv /venv 
+RUN /venv/bin/pip install --no-cache-dir --upgrade setuptools
+RUN /venv/bin/pip install --no-cache-dir --requirement /app/requirements.txt
+RUN /venv/bin/pip install --no-cache-dir --requirement /app/requirements-docker.txt
 ENV PATH $PATH:/venv/bin
 
 RUN /venv/bin/pip install alerta==${CLIENT_VERSION} alerta-server==${SERVER_VERSION}
